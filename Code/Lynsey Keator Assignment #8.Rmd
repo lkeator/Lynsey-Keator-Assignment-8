@@ -56,9 +56,13 @@ library(here)
 
 my.data <- read.csv(here("Data", "likert.csv"))
 
-new.data <- likertsum(my.data[2:9], 6, c(2,3,5,8))
+new.data <- likertsum(my.data[,2:9], 6, c(2,3,5,8))
 
-write.csv(new.data, here("Data","New Data.csv"))
+new.data$ID <- my.data$X
+
+final.data <- new.data[c (10, 1, 2, 3, 4, 5, 6, 7, 8, 9)]
+
+write.csv(final.data, here("Data","Final Data.csv"))
 
 ```
 
