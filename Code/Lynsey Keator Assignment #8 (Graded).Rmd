@@ -1,0 +1,127 @@
+---
+title: 'Lynsey Keator Assignment #8'
+output:
+  html_document:
+    df_print: paged
+date: "4/7/20"
+---
+
+### Question 1
+*Researchers in many disciplines use surveys based on the Likert scale. A survey item will ask the respondent to respond on a specified scale (such as 1 - 6) to indicate where the respondent self-reports level of intensity when measuring an attribute such as agreement, preference, or importance. The survey consists of multiple items and the total score is based on summing across items. This score is meant to reflect the respondent's placement on a construct scale. Two examples wold be a survey to assess beliefs about gun control or a survey to assess desire to obtain an advanced degree. To increase the validity of the scale, some items should be written so that the scale is reversed. That is, a high score on the item will make a small contribution to the total score and a low score will make a large contribution. Such items are called "reverse scored" items. For example, on a 6-point scale, a response of "2" will be scored as "5."*
+
+* Write a function that will compute the total score for respondents on a Likert scale. 
+
+* Your function should accept three required arguments: 
+
+1. a **data frame** with the individual item responses (as usual, individuals in rows and items in columns), 
+2. a **numeric with the scale** used for the items (i.e. you would send "6" of if the items were on a six-point scale), 
+3. a **numeric vector** indicating which item numbers should be reverse scored. 
+
+* Your function should return a data frame that is the original data frame with an additional column added to the end that contains the score for each respondent.
+
+This is the Likert scale sum function. This function will create an extra column to sum total score of a likert score while accounting for reverse score items.
+
+```{r Likert Scale Sum Function, echo=TRUE}
+
+likertsum <- function(my.data, scale, rev.scores){
+
+#Change data to a matrix which allows us to subset columns easily and as a vector
+  matrix.data <- as.matrix(my.data)
+
+#Reverse scoring
+  matrix.data[,rev.scores] <- (scale + 1) - matrix.data[,rev.scores]
+  
+#Sum of rows
+   sum <- rowSums(matrix.data)
+    
+#Add on column of sums to matrix
+    my.data$sum <- sum
+    
+  return(my.data)  
+}
+
+```
+
+### Question 2
+
+*Create a CSV file that contains data from a hypothetical survey given to five participants. Assume the survey consists of 8 Likert items using a 6-point scale with three of these being reverse scored items. Write a script that reads in your data, sends it to your function for scoring, then writes the result to a CSV file that now contains the original data with the score added.*
+
+This is to test the Likert scale sum function.
+
+**You are getting an error on final data because you cannot subset a data frame this way.** (-2)
+
+```{r echo=TRUE}
+
+#Load the data
+
+library(here)
+
+my.data <- read.csv(here("Data", "likert.csv"))
+
+new.data <- likertsum(my.data[,2:9], 6, c(2,3,5,8))
+
+new.data$ID <- my.data$X
+
+final.data <- new.data[c (10, 1, 2, 3, 4, 5, 6, 7, 8, 9)]
+
+write.csv(final.data, here("Data","Final Data.csv"))
+
+```
+
+### Question 3
+
+*Use the hsb2 data and ggplot2 to construct a single scatterplot showing the relationship of science scores (response) to math scores (explanatory) by gender.*
+
+```{r include=FALSE}
+#Let's enter the tidyverse.
+
+library(tidyverse)
+
+#Load the data
+
+library(here)
+
+hsb2 <- read.csv(here("Data", "hsb2.csv"))
+ 
+hsb2
+
+hsb2$female <- factor(hsb2$female, labels = c("female", "male"))
+```
+
+
+```{r echo=FALSE}
+ggplot(data = hsb2) +
+  geom_point(mapping = aes(x = math, y = science, color = female))
+
+```
+
+
+### Question 4
+
+*Again, show the relationship of science scores to math scores by gender, but this time facet on gender to show separate scatterplots.*
+
+```{r echo=FALSE}
+
+ggplot(data = hsb2) +
+  geom_point(mapping = aes(x = math, y = science)) +
+    facet_wrap(~ female)
+
+```
+
+
+### Question 5
+
+*Using your ggplot2 cheat sheet and hsb2 data, create a graph using a geom that was not mentioned in the lecture. Briefly describe what your graph is illustrating.*
+
+```{r echo=FALSE}
+
+hsb2$ses <- factor(hsb2$ses, labels = c("low", "middle", "high"))
+hsb2
+
+ggplot(data = hsb2, mapping = aes(x = math, y = ses)) +
+  geom_dotplot() 
+
+```
+
+
+This creates a dot plot to show the relationship of math and ses.
